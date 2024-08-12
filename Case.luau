@@ -2,26 +2,7 @@
 --!native
 --// Paficent \\--
 
---[[
-Example Usage:
-
-
-local Case = require(script.Case)
-local myCase = Case.new()
-
-myCase:add(false, function() return "Case 1 executed" end)
-myCase:addMultiple({
-    { Statement = true, CallbackFunction = function() return "Case 2 executed" end },
-    { Statement = true, CallbackFunction = function(arg) return "Case 3 executed with arg: " .. arg end, Args = {"Hello"} }
-})
-
-local index = myCase:test()
-print(index) -- Output: 2
-
-local result = myCase:check()
-print(result) -- Output: "Case 2 executed"
-]]--
-
+--!strict
 local Case = {}
 Case.__index = Case
 
@@ -33,15 +14,17 @@ type CaseData = {
 
 type CaseObject = {
     cases: {CaseData},
+    runAll: boolean,
     add: (self: CaseObject, statement: boolean, callbackFunction: ((...any) -> any)?, args: {any}?) -> (),
-    addMultiple: (self: CaseObject, cases: {CaseData}) -> (),
-    test: (self: CaseObject) -> number,
-    check: (self: CaseObject) -> any?
+    addMultiple: (self: CaseObject, ...CaseData) -> (),
+    test: (self: CaseObject) -> {number},
+    check: (self: CaseObject) -> {any}
 }
 
-function Case.new(): CaseObject
+function Case.new(runAll: boolean): CaseObject
     local self: CaseObject = setmetatable({
-        cases = {}
+        cases = {},
+        runAll = runAll or false
     }, Case)
     return self
 end
@@ -55,35 +38,48 @@ function Case:add(statement: boolean, callbackFunction: ((...any) -> any)?, args
     table.insert(self.cases, caseData)
 end
 
-function Case:addMultiple(cases: {CaseData}): ()
-    for _, caseData in ipairs(cases) do
+function Case:addMultiple(...: CaseData): ()
+    for _, caseData in ipairs({...}) do
         table.insert(self.cases, caseData)
     end
 end
 
-function Case:test(): number
-    for index, data in ipairs(self.cases) do
-        if data.Statement then
-            return index
+function Case:test(): {number}
+    local result: {number} = {}
+    for index, caseData in ipairs(self.cases) do
+        if caseData.Statement then
+            result[#result + 1] = index
         end
     end
-    return -1
+    return result
 end
 
-function Case:check(): any?
-    for _, data in ipairs(self.cases) do
-        if data.Statement then
-            local callbackFunction = data.CallbackFunction
+function Case:check(): {any}
+    local results: {any} = {}
+    local runAll = self.runAll
+    for _, caseData in ipairs(self.cases) do
+        if caseData.Statement then
+            local callbackFunction = caseData.CallbackFunction
             if callbackFunction then
-                if data.Args then
-                    return callbackFunction(table.unpack(data.Args))
+                local result
+                if caseData.Args then
+                    result = callbackFunction(table.unpack(caseData.Args))
                 else
-                    return callbackFunction()
+                    result = callbackFunction()
+                end
+                if runAll or result then
+                    results[#results + 1] = result
                 end
             end
         end
     end
-    return nil
+    return results
 end
+
+setmetatable(Case, {
+    __call = function(self, statement: boolean, callbackFunction: ((...any) -> any)?, args: {any}?)
+        return self:add(statement, callbackFunction, args)
+    end
+})
 
 return Case
