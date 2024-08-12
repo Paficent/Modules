@@ -2,6 +2,26 @@
 --!native
 --// Paficent \\--
 
+--[[
+Example Usage:
+
+
+local Case = require(script.Case)
+local myCase = Case.new()
+
+myCase:add(false, function() return "Case 1 executed" end)
+myCase:addMultiple({
+    { Statement = true, CallbackFunction = function() return "Case 2 executed" end },
+    { Statement = true, CallbackFunction = function(arg) return "Case 3 executed with arg: " .. arg end, Args = {"Hello"} }
+})
+
+local index = myCase:test()
+print(index) -- Output: 2
+
+local result = myCase:check()
+print(result) -- Output: "Case 2 executed"
+]]--
+
 local Case = {}
 Case.__index = Case
 
