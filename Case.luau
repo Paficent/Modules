@@ -2,7 +2,6 @@
 --!native
 --// Paficent \\--
 
---!strict
 local Case = {}
 Case.__index = Case
 
