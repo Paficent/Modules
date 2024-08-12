@@ -13,7 +13,7 @@ type CaseData = {
 
 type CaseObject = {
     cases: {CaseData},
-    addCase: (self: CaseObject, statement: boolean, callbackFunction: ((...any) -> any)?, args: {any}?) -> (),
+    add: (self: CaseObject, statement: boolean, callbackFunction: ((...any) -> any)?, args: {any}?) -> (),
     addMultiple: (self: CaseObject, cases: {CaseData}) -> (),
     test: (self: CaseObject) -> number,
     check: (self: CaseObject) -> any?
@@ -26,7 +26,7 @@ function Case.new(): CaseObject
     return self
 end
 
-function Case:addCase(statement: boolean, callbackFunction: ((...any) -> any)?, args: {any}?): ()
+function Case:add(statement: boolean, callbackFunction: ((...any) -> any)?, args: {any}?): ()
     local caseData: CaseData = {
         Statement = statement,
         CallbackFunction = callbackFunction,
