@@ -1,33 +1,28 @@
 --!strict
 --!native
---// Paficent \\--
+--!optimize 2
+--// Paficent \\-
 
-local Case = {}
-Case.__index = Case
-
+--// Types
 type CaseData = {
     Statement: boolean,
     CallbackFunction: ((...any) -> any)?,
     Args: {any}?
 }
 
-type CaseObject = {
-    cases: {CaseData},
-    runAll: boolean,
-    add: (self: CaseObject, statement: boolean, callbackFunction: ((...any) -> any)?, args: {any}?) -> (),
-    addMultiple: (self: CaseObject, ...CaseData) -> (),
-    test: (self: CaseObject) -> {number},
-    check: (self: CaseObject) -> {any}
-}
+--// Module Declaration
+local Case = {}
+Case.__index = Case
 
-function Case.new(runAll: boolean): CaseObject
-    local self: CaseObject = setmetatable({
-        cases = {},
+--// Constructor
+function Case.new(runAll: boolean)
+    return setmetatable({
+        cases = {} :: {CaseData},
         runAll = runAll or false
     }, Case)
-    return self
 end
 
+-- Adds a new case with a statement, callback function, and optional arguments
 function Case:add(statement: boolean, callbackFunction: ((...any) -> any)?, args: {any}?): ()
     local caseData: CaseData = {
         Statement = statement,
@@ -37,12 +32,14 @@ function Case:add(statement: boolean, callbackFunction: ((...any) -> any)?, args
     table.insert(self.cases, caseData)
 end
 
+-- Adds multiple cases in one call
 function Case:addMultiple(...: CaseData): ()
     for _, caseData in ipairs({...}) do
         table.insert(self.cases, caseData)
     end
 end
 
+-- Tests all cases and returns indices of cases with a true statement
 function Case:test(): {number}
     local result: {number} = {}
     for index, caseData in ipairs(self.cases) do
@@ -53,6 +50,7 @@ function Case:test(): {number}
     return result
 end
 
+-- Checks all cases and returns results of callback functions for true statements
 function Case:check(): {any}
     local results: {any} = {}
     local runAll = self.runAll
@@ -75,9 +73,10 @@ function Case:check(): {any}
     return results
 end
 
+-- Allows calling the module as a function to add a case
 setmetatable(Case, {
     __call = function(self, statement: boolean, callbackFunction: ((...any) -> any)?, args: {any}?)
-        return self:add(statement, callbackFunction, args)
+        self:add(statement, callbackFunction, args)
     end
 })
 
