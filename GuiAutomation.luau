@@ -10,7 +10,21 @@ type Button = TextButton | ImageButton
 local Automation = {}
 Automation.__index = Automation
 
--- Fills a TextBox with the provided text
+--// Locals
+local function HandleButtonClick(Button: Button, MouseButton: string)
+    local connectionTypes = {"Activated", "Down", "Up", "Click"}
+    local connections = {Activated = getconnections(Button.Activated)}
+
+    for _, connectionType in ipairs(connectionTypes) do
+        local connection = connections[connectionType] or getconnections(Button[MouseButton .. connectionType])
+        if #connections[connectionType] >= 1 then
+            local success, msg = pcall(function() connections[connectionType][1]:Fire() end)
+            if not success then error(msg) end
+        end
+    end
+end
+
+--// Methods
 function Automation.FillTextBox(TextBox: TextBox, Text: string)
     TextBox.Text = tostring(Text)
 end
@@ -29,26 +43,12 @@ function Automation.TypeTextBox(TextBox: TextBox, Text: string, Delay: number?, 
     end
 end
 
--- Helper function to handle button click events
-local function HandleButtonClick(Button: Button, MouseButton: string)
-    local connectionTypes = {"Activated", "Down", "Up", "Click"}
-    local connections = {Activated = getconnections(Button.Activated)}
-
-    for _, connectionType in ipairs(connectionTypes) do
-        local connection = connections[connectionType] or getconnections(Button[MouseButton .. connectionType])
-        if #connections[connectionType] >= 1 then
-            local success, msg = pcall(function() connections[connectionType][1]:Fire() end)
-            if not success then error(msg) end
-        end
-    end
-end
-
--- Simulates a left-click on a Button by firing the appropriate events
+-- Simulates a left-click on a Button
 function Automation.LeftClickButton(Button: Button)
     HandleButtonClick(Button, "MouseButton1")
 end
 
--- Simulates a right-click on a Button by firing the appropriate events
+-- Simulates a right-click on a Button
 function Automation.RightClickButton(Button: Button)
     HandleButtonClick(Button, "MouseButton2")
 end
