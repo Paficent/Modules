@@ -22,13 +22,33 @@ function Case.new(runAll: boolean)
     }, Case)
 end
 
--- Adds a new case with a statement, callback function, and optional arguments
-function Case:add(statement: boolean, callbackFunction: ((...any) -> any)?, args: {any}?): ()
-    local caseData: CaseData = {
+--// Local Functions
+local function createCaseData(statement: boolean, callbackFunction: ((...any) -> any)?, args: {any}?): CaseData
+    return {
         Statement = statement,
         CallbackFunction = callbackFunction,
         Args = args
     }
+end
+local function getCallbackResult(callbackFunction: ((...any) -> any)?, args: {any}?): any
+    if not callbackFunction then
+        return nil
+    end
+
+    if args then
+        return callbackFunction(table.unpack(args))
+    else
+        return callbackFunction()
+    end
+end
+local function shouldAddResult(result: any, runAll: boolean): boolean
+    return runAll or result
+end
+
+--// Methods
+-- Adds a new case with a statement, callback function, and optional arguments
+function Case:add(statement: boolean, callbackFunction: ((...any) -> any)?, args: {any}?): ()
+    local caseData = createCaseData(statement, callbackFunction, args)
     table.insert(self.cases, caseData)
 end
 
@@ -44,7 +64,7 @@ function Case:test(): {number}
     local result: {number} = {}
     for index, caseData in ipairs(self.cases) do
         if caseData.Statement then
-            result[#result + 1] = index
+            table.insert(result, index)
         end
     end
     return result
@@ -53,20 +73,11 @@ end
 -- Checks all cases and returns results of callback functions for true statements
 function Case:check(): {any}
     local results: {any} = {}
-    local runAll = self.runAll
     for _, caseData in ipairs(self.cases) do
         if caseData.Statement then
-            local callbackFunction = caseData.CallbackFunction
-            if callbackFunction then
-                local result
-                if caseData.Args then
-                    result = callbackFunction(table.unpack(caseData.Args))
-                else
-                    result = callbackFunction()
-                end
-                if runAll or result then
-                    results[#results + 1] = result
-                end
+            local result = getCallbackResult(caseData.CallbackFunction, caseData.Args)
+            if shouldAddResult(result, self.runAll) then
+                table.insert(results, result)
             end
         end
     end
