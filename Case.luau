@@ -42,20 +42,20 @@ end
 
 --// Methods
 -- Adds a new case with a statement, callback function, and optional arguments
-function Case:add(statement: boolean, callbackFunction: ((...any) -> any), args: {any}?): ()
+function Case:Add(statement: boolean, callbackFunction: ((...any) -> any), args: {any}?): ()
     local caseData = createCaseData(statement, callbackFunction, args)
     table.insert(self.cases, caseData)
 end
 
 -- Adds multiple cases in one call
-function Case:addMultiple(...: CaseData): ()
+function Case:AddMultiple(...: CaseData): ()
     for _, caseData in ipairs({...}) do
         table.insert(self.cases, caseData)
     end
 end
 
 -- Tests all cases and returns indices of cases with a true statement
-function Case:test(): {number}
+function Case:Test(): {number}
     local result: {number} = {}
     for index, caseData in ipairs(self.cases) do
         if caseData.Statement then
@@ -66,7 +66,7 @@ function Case:test(): {number}
 end
 
 -- Checks all cases and returns results of callback functions for true statements
-function Case:check(): {any}
+function Case:Check(): {any}
     local results: {any} = {}
     for _, caseData in ipairs(self.cases) do
         if caseData.Statement then
