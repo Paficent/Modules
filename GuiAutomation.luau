@@ -18,9 +18,8 @@ end
 -- Types out text into a TextBox with an optional delay between each character
 function Automation.TypeTextBox(TextBox: TextBox, Text: string, Delay: number?, RemoveOldText: boolean?)
     Delay = Delay or 0.05
-    RemoveOldText = RemoveOldText == nil and true or RemoveOldText
 
-    if RemoveOldText then
+    if RemoveOldText == nil and true or RemoveOldText then
         TextBox.Text = ""
     end
 
