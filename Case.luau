@@ -6,7 +6,7 @@
 --// Types
 type CaseData = {
     Statement: boolean,
-    CallbackFunction: ((...any) -> any)?,
+    CallbackFunction: ((...any) -> any),
     Args: {any}?
 }
 
@@ -23,23 +23,18 @@ function Case.new(runAll: boolean)
 end
 
 --// Local Functions
-local function createCaseData(statement: boolean, callbackFunction: ((...any) -> any)?, args: {any}?): CaseData
+local function createCaseData(statement: boolean, callbackFunction: ((...any) -> any), args: {any}?): CaseData
     return {
         Statement = statement,
         CallbackFunction = callbackFunction,
         Args = args
     }
 end
-local function getCallbackResult(callbackFunction: ((...any) -> any)?, args: {any}?): any
-    if not callbackFunction then
-        return nil
-    end
-
+local function getCallbackResult(callbackFunction: ((...any) -> any), args: {any}?): any
     if args then
         return callbackFunction(table.unpack(args))
-    else
-        return callbackFunction()
     end
+    return callbackFunction()
 end
 local function shouldAddResult(result: any, runAll: boolean): boolean
     return runAll or result
@@ -47,7 +42,7 @@ end
 
 --// Methods
 -- Adds a new case with a statement, callback function, and optional arguments
-function Case:add(statement: boolean, callbackFunction: ((...any) -> any)?, args: {any}?): ()
+function Case:add(statement: boolean, callbackFunction: ((...any) -> any), args: {any}?): ()
     local caseData = createCaseData(statement, callbackFunction, args)
     table.insert(self.cases, caseData)
 end
