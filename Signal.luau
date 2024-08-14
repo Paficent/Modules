@@ -19,7 +19,6 @@ function Signal.new()
     }, Signal)
 end
 
-
 -- Connects a callback function to the signal
 function Signal:Connect(callback: (...any) -> ()): SignalConnection
     table.insert(self._connections, callback)
@@ -36,6 +35,34 @@ function Signal:Connect(callback: (...any) -> ()): SignalConnection
     }
 
     return connection :: SignalConnection
+end
+
+-- Connects a callback that will be called only once
+function Signal:Once(callback: (...any) -> ())
+    local connection
+    connection = self:Connect(function(...)
+        callback(...)
+        connection.Disconnect()
+    end)
+    return connection
+end
+
+-- Waits until the signal is fired and returns the arguments passed to the signal
+function Signal:Wait(): ...any
+    local waiting = true
+    local result
+    local connection
+    connection = self:Connect(function(...)
+        result = {...}
+        waiting = false
+        connection.Disconnect()
+    end)
+
+    while waiting do
+        task.wait()
+    end
+
+    return unpack(result)
 end
 
 -- Fires the signal, calling all connected callbacks with the provided arguments
