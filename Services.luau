@@ -41,12 +41,18 @@ setmetatable(Services, {
     end
 })
 
+-- Alternative Syntax, proxy for __call
+function Services:Get(...: string): {any}
+    return self(...)
+end
+
 --[[
 -- You can use this module in two ways
 local Services = require(script.Parent.Services)
 
 local ReplicatedStorage: ReplicatedStorage = Services.ReplicatedStorage
 local Players: Players, RunService: RunService = Services("Players", "RunService")
+local Players, RunService = Services:Get("Players", "RunService")
 
 for _, obj in ipairs(ReplicatedStorage:GetChildren()) do
     obj:Destroy()
