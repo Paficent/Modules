@@ -23,38 +23,17 @@ function HookService.new()
     return setmetatable({
         OnMessage = Signal.new(),
     }, HookService)
-end
-
---// Locals
-local hooks: {AmbigiousFunction: any} = {}
-
-local clone_func = function(func)
-    return clonefunction and clonefunction(func) or clonefunc and clonefunc(func) or func
-end
-local hook_func = function(func, hook)
-    hooks[func] = clone_func(func)
-
-    hookfunction(func, hook)
-end
-local restore_func = function(hookedFunction)
-    if restorefunction then
-        restorefunction(hookedFunction)
-    else
-        error("Your executor doesn't support 'restorefunction'")
-    end
-
-    hooks[hookedFunction] = nil
-end
+en
 
 -- Hooks a function with another function
 function HookService:Hook(originalFunction: AmbigiousFunction, hookFunction: AmbigiousFunction)
-    hook_func(originalFunction, hookFunction)
+    hookfunction(originalFunction, hookFunction)
     self.OnMessage:Fire(`Hooked {originalFunction}`)
 end
 
 -- Restores a previously hooked function to the original
 function HookService:Restore(originalFunction: AmbigiousFunction)
-    restore_func(originalFunction)
+    restorefunction(originalFunction)
     self.OnMessage:Fire(`Hooked {originalFunction}`)
 end
 
