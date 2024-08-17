@@ -36,9 +36,6 @@ local function getCallbackResult(callbackFunction: ((...any) -> any), args: {any
     end
     return callbackFunction()
 end
-local function shouldAddResult(result: any, runAll: boolean): boolean
-    return runAll or result
-end
 
 --// Methods
 -- Adds a new case with a statement, callback function, and optional arguments
@@ -71,19 +68,12 @@ function Case:Check(): {any}
     for _, caseData in ipairs(self.cases) do
         if caseData.Statement then
             local result = getCallbackResult(caseData.CallbackFunction, caseData.Args)
-            if shouldAddResult(result, self.runAll) then
+            if runAll or result then
                 table.insert(results, result)
             end
         end
     end
     return results
 end
-
--- Allows calling the module as a function to add a case
-setmetatable(Case, {
-    __call = function(self, statement: boolean, callbackFunction: ((...any) -> any)?, args: {any}?)
-        self:add(statement, callbackFunction, args)
-    end
-})
 
 return Case
