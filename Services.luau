@@ -16,7 +16,7 @@ local Services = {}
 Services.__index = Services
 setmetatable(Services, {
 	-- Handles dynamic service creation or retrieval
-	__index = function(self, name: string): Instance
+	__index = function(self, name: string)
 		local service
 		if name == "VirtualInputManager" or name == "VirtualUser" then
 			service = cloneReference(Instance.new(name))
